@@ -744,7 +744,7 @@ impl GooseAcpAgent {
         let config = Config::new(&config_path, "goose")?;
         let model_id = config.get_goose_model()?;
         let model_config = goose::model::ModelConfig::new(&model_id)?;
-        let provider = (self.provider_factory)(model_config).await?;
+        let provider = (self.provider_factory)(model_config, Vec::new()).await?;
         self.agent
             .update_provider(provider.clone(), &session.id)
             .await?;
@@ -961,9 +961,11 @@ impl GooseAcpAgent {
         let model_config = goose::model::ModelConfig::new(model_id).map_err(|e| {
             sacp::Error::internal_error().data(format!("Invalid model config: {}", e))
         })?;
-        let provider = (self.provider_factory)(model_config).await.map_err(|e| {
-            sacp::Error::internal_error().data(format!("Failed to create provider: {}", e))
-        })?;
+        let provider = (self.provider_factory)(model_config, Vec::new())
+            .await
+            .map_err(|e| {
+                sacp::Error::internal_error().data(format!("Failed to create provider: {}", e))
+            })?;
         self.agent
             .update_provider(provider, session_id)
             .await

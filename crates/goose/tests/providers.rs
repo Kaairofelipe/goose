@@ -91,7 +91,7 @@ struct ProviderTester {
     provider: Arc<dyn Provider>,
     name: String,
     extension_manager: Arc<ExtensionManager>,
-    is_cli_provider: bool,
+    disable_session_id_validation: bool,
 }
 
 impl ProviderTester {
@@ -99,13 +99,13 @@ impl ProviderTester {
         provider: Arc<dyn Provider>,
         name: String,
         extension_manager: Arc<ExtensionManager>,
-        is_cli_provider: bool,
+        disable_session_id_validation: bool,
     ) -> Self {
         Self {
             provider,
             name,
             extension_manager,
-            is_cli_provider,
+            disable_session_id_validation,
         }
     }
 
@@ -220,17 +220,7 @@ impl ProviderTester {
             "hello ".repeat(300_000)
         };
 
-        let messages = vec![
-            Message::user().with_text("hi there. what is 2 + 2?"),
-            Message::assistant().with_text("hey! I think it's 4."),
-            Message::user().with_text(&large_message_content),
-            Message::assistant().with_text("heyy!!"),
-            Message::user().with_text("what's the meaning of life?"),
-            Message::assistant().with_text("the meaning of life is 42"),
-            Message::user().with_text(
-                "did I ask you what's 2+2 in this message history? just respond with 'yes' or 'no'",
-            ),
-        ];
+        let messages = vec![Message::user().with_text(&large_message_content)];
 
         let result = self
             .provider
@@ -304,7 +294,7 @@ impl ProviderTester {
     }
 
     fn session_id_for_test(&self, test_name: &str) -> String {
-        if self.is_cli_provider {
+        if self.disable_session_id_validation {
             format!("test_{}", test_name)
         } else {
             TEST_SESSION_ID.to_string()
@@ -315,13 +305,10 @@ impl ProviderTester {
         self.test_model_listing().await?;
         self.test_basic_response(&self.session_id_for_test("basic_response"))
             .await?;
-        // TODO: remove skip in https://github.com/block/goose/pull/6972
-        if !self.is_cli_provider {
-            self.test_tool_usage(&self.session_id_for_test("tool_usage"))
-                .await?;
-            self.test_image_content_support(&self.session_id_for_test("image_content"))
-                .await?;
-        }
+        self.test_tool_usage(&self.session_id_for_test("tool_usage"))
+            .await?;
+        self.test_image_content_support(&self.session_id_for_test("image_content"))
+            .await?;
         self.test_context_length_exceeded_error(&self.session_id_for_test("context_length"))
             .await?;
         Ok(())
@@ -339,8 +326,7 @@ async fn test_provider(
     model_name: &str,
     required_vars: &[&str],
     env_modifications: Option<HashMap<&str, Option<String>>>,
-    // CLI providers cannot propagate the agent-session-id header to MCP servers.
-    is_cli_provider: bool,
+    disable_session_id_validation: bool,
 ) -> Result<()> {
     TEST_REPORT.record_fail(name);
 
@@ -385,7 +371,7 @@ async fn test_provider(
     };
 
     let provider_name = name.to_lowercase();
-    let expected_session_id = if is_cli_provider {
+    let expected_session_id = if disable_session_id_validation {
         None
     } else {
         Some(ExpectedSessionId::default())
@@ -398,7 +384,13 @@ async fn test_provider(
     let mcp_extension =
         ExtensionConfig::streamable_http("mcp-fixture", &mcp.url, "MCP fixture", 30_u64);
 
-    let provider = match create_with_named_model(&provider_name, model_name).await {
+    let provider = match create_with_named_model(
+        &provider_name,
+        model_name,
+        vec![mcp_extension.clone()],
+    )
+    .await
+    {
         Ok(p) => p,
         Err(e) => {
             println!("Skipping {} tests - failed to create provider: {}", name, e);
@@ -434,7 +426,7 @@ async fn test_provider(
         provider,
         name.to_string(),
         extension_manager,
-        is_cli_provider,
+        disable_session_id_validation,
     );
     let _mcp = mcp;
     let result = tester.run_test_suite().await;
@@ -632,6 +624,7 @@ async fn test_claude_code_provider() -> Result<()> {
         TEST_REPORT.record_skip("claude-code");
         return Ok(());
     }
+    // CLI providers cannot propagate the agent-session-id header to MCP servers.
     test_provider("claude-code", CLAUDE_CODE_DEFAULT_MODEL, &[], None, true).await
 }
 
@@ -642,6 +635,7 @@ async fn test_codex_provider() -> Result<()> {
         TEST_REPORT.record_skip("codex");
         return Ok(());
     }
+    // CLI providers cannot propagate the agent-session-id header to MCP servers.
     test_provider("codex", CODEX_DEFAULT_MODEL, &[], None, true).await
 }
 

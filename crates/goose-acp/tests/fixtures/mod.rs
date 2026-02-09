@@ -202,7 +202,7 @@ pub async fn spawn_acp_server_in_process(
         fs::write(&config_path, format!("GOOSE_MODEL: {TEST_MODEL}\n")).unwrap();
     }
     let base_url = openai_base_url.to_string();
-    let provider_factory: ProviderConstructor = Arc::new(move |model_config| {
+    let provider_factory: ProviderConstructor = Arc::new(move |model_config, _extensions| {
         let base_url = base_url.clone();
         Box::pin(async move {
             let api_client =
