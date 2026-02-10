@@ -60,7 +60,7 @@ This isn’t a prediction. It’s already happening.
 
 Patterns like [Ralph Wiggum loop](https://ghuntley.com/loop/), [OpenClaw](https://openclaw.ai/), and multi agent planning systems aren’t about clever wording. They’re about designing context pipelines that let agents think across steps.
 
-The reaction to these projects weren't just hype. Developers went **completely* feral over them because they were hungry for real examples of successful context engineering. Not prompt tricks but actual systems that held state, iterated, and behaved *predictably* across time.
+The reaction to these projects wasn't just hype. Developers went completely feral over them because they were hungry for real examples of successful context engineering. Not prompt tricks but actual systems that held state, iterated, and behaved *predictably* across time.
 
 That excitement tells you where the energy is moving. Builders are asking for environments that scale. And once you start designing those environments, new concerns show up immediately, context pollution, memory drift, permission boundaries, security, governance, etc. Context engineering isn’t just about giving agents more power, it’s about deciding what they’re allowed to carry forward and what they’re not allowed to touch.
 
