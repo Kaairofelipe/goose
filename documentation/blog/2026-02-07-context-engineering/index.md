@@ -48,7 +48,7 @@ As someone put it in a thread I recently came across:
 
 > “The best model with bad context loses to an average model with great context.”
 
-That’s the shift in one line, context is now the advantage.
+That’s the shift. Context is now the advantage.
 
 
 
