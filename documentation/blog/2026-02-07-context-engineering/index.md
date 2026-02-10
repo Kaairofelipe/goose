@@ -81,7 +81,7 @@ When I started building our skills marketplace, one shot prompting got messy fas
 
 I didn’t adopt a new context engineering workflow because it was trendy. I adopted it because honestly the alternative became tedious. Once I committed to RPI, the friction disappeared. I repeated myself less. My agent made fewer mistakes. We stopped losing the plot halfway through the project. And I had research and planning docs I could actually read.
 
-Because of that experience, I started applying the same approach to other projects too. I built a video workflow agent where the operational steps live inside the system through recipes, and skills. So as a team, we’re not carrying the process in our heads anymore, we can now focus on the creative direction of our videos instead of babysitting the workflow.
+Because of that experience, I started applying the same approach to other projects too. I built a video workflow agent where the operational steps live inside the system through recipes and skills. So as a team, we’re not carrying the process in our heads anymore, we can now focus on the creative direction of our videos instead of babysitting the workflow.
 
 ---
 
